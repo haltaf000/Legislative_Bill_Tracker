@@ -1,17 +1,20 @@
 import streamlit as st
-from src.config import Config
-from src.database import Database
-from src.session_state import get_session_state
+import pandas as pd
+import requests
 
-session_state = get_session_state()
+st.title('NYC and NYS Legislative Bill Tracker')
 
-st.title('Legislative Bill Tracker')
-st.sidebar.header('Search for Bills')
+from src.data_acquisition.api_client import fetch_bills
 
-bill_number = st.sidebar.text_input('Bill Number')
-search_results = session_state.search_bills(bill_number)
+bills = fetch_bills()  
 
-if search_results:
-    for bill in search_results:
-        st.write(bill)
+bills_df = pd.DataFrame(bills)
+
+st.table(bills_df)
+
+selected_bill = st.selectbox("Choose a bill to view details", bills_df['Bill Number'])
+bill_details = bills_df[bills_df['Bill Number'] == selected_bill]
+st.write(bill_details)
+
+
 
